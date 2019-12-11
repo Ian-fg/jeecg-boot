@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.ianfg.mapper.ReportMapper">
+
+	<resultMap id="sectionModel" type="org.jeecg.modules.ianfg.entity.SectionDataEntity" >
+		<result column="section" property="section" jdbcType="VARCHAR"/>
+		<result column="count" property="count" jdbcType="INTEGER"/>
+		<result column="totalmoney" property="totalmoney" jdbcType="NUMERIC"/>
+	</resultMap>
+
+	<!-- 根据时间查年度区间分布 -->
+	<select id="getSectionData" parameterType="org.jeecg.modules.ianfg.entity.ReportQueryEntity" resultMap="sectionModel">
+		SELECT '500万元以上(含）' section, COUNT(*) count,SUM(t.MONEY) totalmoney FROM t_import_data t WHERE
+		<if test="startDate !=null and endDate != null">	 t.IMPORT_DATE BETWEEN 	#{startDate} AND #{endDate} AND </if>
+				 t.MONEY &gt;= 5000000
+		UNION ALL
+		SELECT '100万元（含）-500万元' section, COUNT(*) count,SUM(t.MONEY) totalmoney FROM t_import_data t WHERE
+		<if test="startDate !=null and endDate != null">		 t.IMPORT_DATE BETWEEN 	#{startDate} AND #{endDate} AND </if>
+				 t.MONEY &gt;= 1000000 and t.MONEY &lt; 5000000
+		UNION ALL
+		SELECT '50万元（含）-100万元' section, COUNT(*) count,SUM(t.MONEY) totalmoney FROM t_import_data t WHERE
+		<if test="startDate !=null and endDate != null">		 t.IMPORT_DATE BETWEEN 	#{startDate} AND #{endDate} AND </if>
+		 t.MONEY &gt;= 500000 and t.MONEY &lt; 1000000
+		UNION ALL
+		SELECT '10万元（含）-50万元' section, COUNT(*) count,SUM(t.MONEY) totalmoney FROM t_import_data t WHERE
+		<if test="startDate !=null and endDate != null">		 t.IMPORT_DATE BETWEEN 	#{startDate} AND #{endDate}  AND</if>
+		 t.MONEY &gt;= 100000 and t.MONEY &lt; 500000
+		UNION ALL
+		SELECT '10万元以下' section, COUNT(*) count,SUM(t.MONEY) totalmoney FROM t_import_data t WHERE
+		<if test="startDate !=null and endDate != null">		 t.IMPORT_DATE BETWEEN 	#{startDate} AND #{endDate} AND </if>
+		 t.MONEY &lt; 100000
+	</select>
+
+
+</mapper>
